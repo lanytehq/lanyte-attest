@@ -66,7 +66,6 @@ pub fn check_revocation_at_time(
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
     use std::sync::Mutex;
 
     use tempfile::tempdir;
@@ -153,7 +152,7 @@ mod tests {
     #[test]
     fn check_revocation_reports_active_state() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let registry = SessionRegistry::open(&paths).expect("registry open");
         let claims = fixture_claims();
 
@@ -170,7 +169,7 @@ mod tests {
     #[test]
     fn check_revocation_reports_missing_session() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let _registry = SessionRegistry::open(&paths).expect("registry open");
         let err = check_revocation_at_time(
             "123e4567-e89b-12d3-a456-426614174001",
@@ -185,7 +184,7 @@ mod tests {
     #[test]
     fn check_revocation_fails_read_only_when_registry_missing() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
 
         let err = check_revocation_at_time(
             "123e4567-e89b-12d3-a456-426614174001",

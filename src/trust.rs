@@ -11,13 +11,15 @@ pub struct TrustConfig {
     pub issuer: String,
 }
 
-impl TrustConfig {
-    pub fn default() -> Self {
+impl Default for TrustConfig {
+    fn default() -> Self {
         Self {
             issuer: DEFAULT_ISSUER.to_string(),
         }
     }
+}
 
+impl TrustConfig {
     pub fn validate(&self) -> Result<()> {
         validate_instance_name(&self.issuer)
     }
@@ -74,8 +76,6 @@ pub fn load_trust_config(paths: &AttestPaths) -> Result<TrustConfig> {
 
 #[cfg(all(test, feature = "issue"))]
 mod tests {
-    use std::path::PathBuf;
-
     use tempfile::tempdir;
 
     use super::{load_trust_config, write_trust_config};
@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn writes_default_trust_config() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
 
         let config = write_trust_config(&paths, None).expect("trust config should write");
         assert_eq!(config.issuer, "lanyte-attest");
@@ -96,7 +96,7 @@ mod tests {
     #[test]
     fn writes_custom_issuer() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
 
         let config = write_trust_config(&paths, Some("lanyte-dev.local"))
             .expect("trust config should write");
@@ -106,7 +106,7 @@ mod tests {
     #[test]
     fn rejects_missing_trust_config() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
 
         let err = load_trust_config(&paths).expect_err("missing config must fail");
         assert!(matches!(err, AttestError::MissingTrustConfig(_)));
