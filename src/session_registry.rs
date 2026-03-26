@@ -309,8 +309,6 @@ fn create_registry_file(path: &Path) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-
     use tempfile::tempdir;
 
     use super::{token_hash, SessionRegistry};
@@ -334,7 +332,7 @@ mod tests {
     #[test]
     fn records_and_allows_active_session() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let registry = SessionRegistry::open(&paths).expect("registry open");
         let claims = fixture_claims();
 
@@ -349,7 +347,7 @@ mod tests {
     #[test]
     fn rejects_ended_session_via_canonical_path() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let registry = SessionRegistry::open(&paths).expect("registry open");
         let claims = fixture_claims();
 
@@ -375,7 +373,7 @@ mod tests {
     #[test]
     fn rejects_revoked_session_via_canonical_path() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let registry = SessionRegistry::open(&paths).expect("registry open");
         let claims = fixture_claims();
 
@@ -401,7 +399,7 @@ mod tests {
     #[test]
     fn rejects_expired_session_via_canonical_path() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let registry = SessionRegistry::open(&paths).expect("registry open");
         let claims = fixture_claims();
 
@@ -427,7 +425,7 @@ mod tests {
         use std::os::unix::fs::PermissionsExt;
 
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let _registry = SessionRegistry::open(&paths).expect("registry open");
 
         let mode = std::fs::metadata(&paths.sessions_db_path)
@@ -444,7 +442,7 @@ mod tests {
         use std::os::unix::fs::PermissionsExt;
 
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let _registry = SessionRegistry::open(&paths).expect("registry open");
         std::fs::set_permissions(
             &paths.sessions_db_path,

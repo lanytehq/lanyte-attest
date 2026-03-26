@@ -60,11 +60,7 @@ pub fn generate_key_material(passphrase: &str) -> Result<StoredKeyMaterial> {
 pub fn write_key_material(paths: &AttestPaths, key_material: &StoredKeyMaterial) -> Result<()> {
     paths.ensure_root_dir()?;
 
-    let private_result =
-        write_private_key_file(&paths.private_key_path, &key_material.encrypted_secret_key);
-    if let Err(err) = private_result {
-        return Err(err);
-    }
+    write_private_key_file(&paths.private_key_path, &key_material.encrypted_secret_key)?;
 
     let public_result = write_public_key_file(&paths.public_key_path, &key_material.public_key_b64);
     if let Err(err) = public_result {
@@ -181,8 +177,6 @@ fn ensure_file_ready(path: &Path, private: bool) -> Result<()> {
 
 #[cfg(all(test, feature = "issue"))]
 mod tests {
-    use std::path::PathBuf;
-
     use seclusor_crypto::{sign, verify};
     use tempfile::tempdir;
 
@@ -192,7 +186,7 @@ mod tests {
     #[test]
     fn generates_and_roundtrips_key_material() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let key_material = generate_key_material("correct horse battery staple")
             .expect("key material should generate");
 
@@ -209,7 +203,7 @@ mod tests {
     #[test]
     fn rejects_overwriting_existing_key_material() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let key_material =
             generate_key_material("test-passphrase").expect("key material should generate");
 
@@ -222,7 +216,7 @@ mod tests {
     #[test]
     fn rejects_empty_public_key_file() {
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         paths.ensure_root_dir().expect("root dir should be created");
         std::fs::write(&paths.public_key_path, "\n").expect("empty public key file");
 
@@ -236,7 +230,7 @@ mod tests {
         use std::os::unix::fs::PermissionsExt;
 
         let dir = tempdir().expect("temp dir");
-        let paths = AttestPaths::from_root(PathBuf::from(dir.path().join("attest")));
+        let paths = AttestPaths::from_root(dir.path().join("attest"));
         let key_material = generate_key_material("correct horse battery staple")
             .expect("key material should generate");
 
