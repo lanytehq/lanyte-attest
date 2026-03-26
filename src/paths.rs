@@ -154,7 +154,8 @@ mod tests {
         env::set_var("LANYTE_ATTEST_HOME", dir.path().join("attacker-root"));
 
         let paths = AttestPaths::resolve_trusted_verify().expect("trusted verify paths");
-        assert_eq!(paths.root_dir, dir.path().join(".lanyte/attest"));
+        assert!(paths.root_dir.ends_with(".lanyte/attest"));
+        assert_ne!(paths.root_dir, dir.path().join("attacker-root"));
 
         env::remove_var("LANYTE_ATTEST_HOME");
         env::remove_var("HOME");

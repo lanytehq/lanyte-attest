@@ -51,11 +51,11 @@ pub fn run(cli: Cli) -> Result<()> {
             verify_command(args, &paths)
         }
         Command::End => {
-            let paths = AttestPaths::resolve()?;
+            let paths = resolve_admin_paths()?;
             end(&paths)
         }
         Command::Revoke(args) => {
-            let paths = AttestPaths::resolve()?;
+            let paths = resolve_admin_paths()?;
             revoke(args, &paths)
         }
     }
@@ -71,6 +71,11 @@ fn resolve_keygen_paths(args: &KeygenArgs) -> Result<AttestPaths> {
     } else {
         AttestPaths::resolve()
     }
+}
+
+#[cfg(feature = "cli")]
+fn resolve_admin_paths() -> Result<AttestPaths> {
+    AttestPaths::resolve_trusted_verify()
 }
 
 #[cfg(feature = "cli")]
@@ -312,7 +317,7 @@ mod tests {
 
     use crate::{AttestError, AttestPaths, KeygenArgs};
 
-    use super::{compute_ctx_hash, parse_ttl_seconds, resolve_keygen_paths};
+    use super::{compute_ctx_hash, parse_ttl_seconds, resolve_admin_paths, resolve_keygen_paths};
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
 
@@ -398,6 +403,21 @@ mod tests {
         let issuer = crate::verify::resolve_expected_issuer().expect("issuer should resolve");
         assert_eq!(issuer, "lanyte-dev.local");
 
+        std::env::remove_var("HOME");
+    }
+
+    #[test]
+    fn admin_paths_ignore_attest_home_override() {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let dir = tempfile::tempdir().expect("temp dir");
+        std::env::set_var("HOME", dir.path());
+        std::env::set_var("LANYTE_ATTEST_HOME", dir.path().join("attacker-root"));
+
+        let paths = resolve_admin_paths().expect("admin paths should resolve");
+        assert!(paths.root_dir.ends_with(".lanyte/attest"));
+        assert_ne!(paths.root_dir, dir.path().join("attacker-root"));
+
+        std::env::remove_var("LANYTE_ATTEST_HOME");
         std::env::remove_var("HOME");
     }
 }
