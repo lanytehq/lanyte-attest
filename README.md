@@ -3,7 +3,7 @@
 `lanyte-attest` is the session attestation CLI and library for supervised Lanyte sessions.
 
 It mints and verifies signed session tokens, stores revocation state locally, and provides the
-attestation boundary that downstream tools like `lanyte-ctx` enforce.
+attestation boundary that downstream tools like `stashvoy` enforce.
 
 ## Current status
 
@@ -22,7 +22,7 @@ CRT-012 implementation checkpoint is in place.
 - `end` and `revoke` now transition tracked sessions in SQLite
 - crypto dependency now targets `seclusor-crypto` `v0.1.1`
 - issuer trust is now loaded from trusted attestation config at `~/.lanyte/attest/trust.toml`, not runtime env
-- `lanyte-ctx` now consumes the shared `verify` API rather than copying token verification logic
+- `stashvoy` now consumes the shared `verify` API rather than copying token verification logic
 - `ctx_hash` is currently a reserved claim with enforced structural shape; consumer-side runtime context matching is not enforced yet
 
 Remaining closeout work is end-to-end proof capture, repo/PR hygiene, and any follow-on UX refinements.
@@ -45,7 +45,7 @@ lanyte-attest revoke <jti>
 
 ## End-to-end proof
 
-Example local proof flow with `lanyte-ctx`:
+Example local proof flow with `stashvoy`:
 
 ```sh
 # 1. Generate key material + trusted issuer config
@@ -57,14 +57,14 @@ eval "$(cargo run -- begin --role devlead --scope lanytehq --emit-env)"
 # 3. Verify the token directly
 cargo run -- verify "$LANYTE_SESSION_TOKEN"
 
-# 4. Checkpoint through lanyte-ctx (from ../lanyte-ctx)
-(cd ../lanyte-ctx && cargo run -- checkpoint --role devlead --scope lanytehq --file path/to/STATE.json)
+# 4. Checkpoint through stashvoy (from ../stashvoy)
+(cd ../stashvoy && cargo run -- checkpoint --role devlead --scope lanytehq --file path/to/STATE.json)
 
 # 5. End the session
 cargo run -- end
 
 # 6. A later checkpoint with the old token now fails
-(cd ../lanyte-ctx && cargo run -- checkpoint --role devlead --scope lanytehq --file path/to/STATE.json)
+(cd ../stashvoy && cargo run -- checkpoint --role devlead --scope lanytehq --file path/to/STATE.json)
 ```
 
 Expected behavior:
