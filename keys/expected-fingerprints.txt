@@ -1,0 +1,21 @@
+# lanyte-attest release signing — expected public-key fingerprints
+#
+# Format: one `<algo> <fingerprint>` line per key.
+#   minisign  <hex key id, lowercase, no separators — 20 hex chars>
+#   gpg       <40-char hex fingerprint, uppercase>
+#
+# `make release-verify-keys` (and the underlying
+# scripts/verify-public-keys.sh) compares the public key files attached
+# to a release against these expected values. A TBD-prefixed value is
+# treated as an unprovisioned placeholder and fails verification with a
+# clear next-step hint — guarding against ever shipping a release whose
+# fingerprints haven't been pinned to a known-good operator key set.
+#
+# When the lanytehq release-signing keypair is provisioned (minisign +
+# GPG), replace the TBD lines below with the real fingerprints in the
+# same release PR that bumps to the next version. Cross-reference the
+# fingerprint values into RELEASE_CHECKLIST.md §"Verification commands"
+# at the same time so external adopters have a single canonical list.
+
+minisign TBD-minisign-fingerprint-pending-lanytehq-keypair-provisioning
+gpg      TBD-gpg-fingerprint-pending-lanytehq-keypair-provisioning
