@@ -208,19 +208,38 @@ release-preflight: release-prep ## Pre-tag readiness gate — clean tree, versio
 		echo "     pick a fresh version, or delete the stale tag"; \
 		exit 1; \
 	fi; \
-	if git ls-remote --tags origin "$$tag" 2>/dev/null | grep -q "$$tag"; then \
+	ls_remote_out=$$(git ls-remote --tags origin "$$tag" 2>&1); \
+	ls_remote_rc=$$?; \
+	if [ "$$ls_remote_rc" != "0" ]; then \
+		echo "[!!] git ls-remote --tags origin failed (rc=$$ls_remote_rc):"; \
+		echo "$$ls_remote_out" | sed 's/^/     /'; \
+		echo "     resolve git/network access before retrying preflight"; \
+		exit 1; \
+	fi; \
+	if echo "$$ls_remote_out" | grep -q "refs/tags/$$tag$$"; then \
 		echo "[!!] tag $$tag already exists on origin"; \
 		exit 1; \
 	fi
 	@echo "[ok] no conflicting tag for v$$(cat $(VERSION_FILE))"
+	@# Fail-closed on auth / rate-limit / network errors. Only a literal
+	@# "release not found" on stderr (gh's 404 wording) is treated as
+	@# "no conflicting release" — every other failure mode (HTTP 401,
+	@# repo resolution failure, transient network) halts preflight.
 	@tag="v$$(cat $(VERSION_FILE))"; \
-	if command -v gh >/dev/null 2>&1 && \
-	   gh release view "$$tag" --repo lanytehq/lanyte-attest >/dev/null 2>&1; then \
+	gh_stderr=$$(gh release view "$$tag" --repo lanytehq/lanyte-attest 2>&1 >/dev/null); \
+	gh_rc=$$?; \
+	if [ "$$gh_rc" = "0" ]; then \
 		echo "[!!] GitHub release $$tag already exists"; \
 		echo "     gh release view $$tag --repo lanytehq/lanyte-attest"; \
 		exit 1; \
+	elif echo "$$gh_stderr" | grep -qx "release not found"; then \
+		echo "[ok] no conflicting GitHub release for v$$(cat $(VERSION_FILE))"; \
+	else \
+		echo "[!!] gh release view failed with non-not-found error (rc=$$gh_rc):"; \
+		echo "$$gh_stderr" | sed 's/^/     /'; \
+		echo "     resolve auth / network / permission issue before retrying preflight"; \
+		exit 1; \
 	fi
-	@echo "[ok] no conflicting GitHub release for v$$(cat $(VERSION_FILE))"
 	@for tool in gh minisign gpg; do \
 		if ! command -v $$tool >/dev/null 2>&1; then \
 			echo "[!!] $$tool not on PATH"; \
