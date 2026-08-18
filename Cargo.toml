@@ -19,7 +19,7 @@ clap = { version = "4", features = ["derive"], optional = true }
 env_logger = { version = "0.11", optional = true }
 log = "0.4"
 rpassword = { version = "7", optional = true }
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
 seclusor-crypto = { version = "0.1.1", git = "https://github.com/3leaps/seclusor", tag = "v0.1.1", features = ["signing"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
