@@ -12,6 +12,14 @@ order. Older entries are archived under `docs/releases/vX.Y.Z.md`.
 
 _No changes yet — open the next release's [Unreleased] section here._
 
+## [0.1.1] — 2026-10-23
+
+### Changed
+
+- `rusqlite` 0.37 → 0.40 (bundled SQLite via `libsqlite3-sys` 0.38), so
+  downstream crates can link a single current `libsqlite3-sys`.
+- Agent warm-up path points at the renamed `crucible` clone.
+
 ## [0.1.0] — 2026-05-22
 
 First public release of `lanyte-attest`. Establishes the session
