@@ -3,7 +3,7 @@
 Start every session with:
 
 1. `/Users/davethompson/dev/lanytehq/AGENTS.md`
-2. `/Users/davethompson/dev/lanytehq/lanyte-crucible/docs/guides/dev-warmup.md`
+2. `/Users/davethompson/dev/lanytehq/crucible/docs/guides/dev-warmup.md`
 3. This repo's `REPOSITORY_SAFETY_PROTOCOLS.md`
 
 ## Working rules
